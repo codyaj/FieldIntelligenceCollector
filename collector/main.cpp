@@ -7,54 +7,32 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include "include/AdapterManager.hpp"
 
-bool isMonitorMode(const std::string &iface) {
-    std::string cmd = "iw dev " + iface + " info | grep 'type'";
-    FILE *pipe = popen(cmd.c_str(), "r");
-    if (!pipe) return false;
-    
-        char buffer[128];
-    std::string result = "";
-    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-        result += buffer;
-    }
-    pclose(pipe);
-
-    return result.find("monitor") != std::string::npos;
-}
-
-void setMonitorMode(const std::string &iface) {
-    if (system(("ip link set " + iface + " down").c_str()) != 0)
-        exit(1);
-    if (system(("iw " + iface + " set monitor control").c_str()) != 0)
-        exit(1);
-    if (system(("ip link set " + iface + " up").c_str()) != 0)
-        exit(1);
-}
-
-void setChannel(const std::string &iface, int channel) {
-    std::string cmd = "iw dev " + iface + " set channel " + std::to_string(channel);
-    if (system(cmd.c_str()) != 0) {
-        std::cerr << "Failed to set channel " << channel << std::endl;
-    }
-}
 
 int main() {
     if (geteuid() != 0) {
-        std::cerr << "This program must be run as root!" << std::endl;
+        std::cout << "This program must be run as sudo!" << std::endl;
         return 1;
     }
 
-    std::string iface = "wlp0s20f0u5u3";
+    AdapterManager adapterManager("wlp0s20f0u5u3");
 
-    if (!isMonitorMode(iface)) {
-        setMonitorMode(iface);
-        if (!isMonitorMode(iface)) {
-            std::cerr << "Failed to put network card into monitor mode" << std::endl;
+    if(!adapterManager.isMonitorMode()) {
+        std::cout << "Enabling monitor mode" << std::endl;
+        if(!adapterManager.setMonitorMode()) {
+            std::cout << "Failed to set to monitor mode" << std::endl;
             return 1;
         }
     }
 
+    std::cout << "Changing to channel " << adapterManager.getSupportedChannels()[4] << std::endl;
+    adapterManager.setChannel(adapterManager.getSupportedChannels()[4]);
+
+    return 0;
+
+
+    /*
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *handle = pcap_open_live(iface.c_str(), 65535, 1, 1000, errbuf);
     if (!handle) {
@@ -67,8 +45,6 @@ int main() {
 
     while (true) {
         for (int ch : channels) {
-            setChannel(iface, ch);
-            std::cout << "Switched to channel " << ch << std::endl;
 
             // Capture packets for dwell_ms
             auto start = std::chrono::steady_clock::now();
@@ -85,5 +61,5 @@ int main() {
     }
 
     pcap_close(handle);
-    return 0;
+    return 0;*/
 }
