@@ -1,5 +1,4 @@
-#ifndef ADAPTERMANAGER_HPP
-#define ADAPTERMANAGER_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -34,5 +33,3 @@ public:
     // Active channel management
     void setActiveChannels(const std::vector<int>& channels);
 };
-
-#endif

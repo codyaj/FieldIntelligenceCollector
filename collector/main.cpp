@@ -8,6 +8,7 @@
 #include <thread>
 #include <chrono>
 #include "include/AdapterManager.hpp"
+#include "include/Database.hpp"
 
 
 int main() {
@@ -15,6 +16,10 @@ int main() {
         std::cout << "This program must be run as sudo!" << std::endl;
         return 1;
     }
+
+    DatabaseManager databaseManager("../data/data.db"); // Relative path from build file
+
+    return 0;
 
     AdapterManager adapterManager("wlp0s20f0u5u3");
 
