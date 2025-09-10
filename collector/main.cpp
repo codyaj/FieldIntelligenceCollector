@@ -9,6 +9,7 @@
 #include <chrono>
 #include "include/AdapterManager.hpp"
 #include "include/Database.hpp"
+#include "include/OUIManager.hpp"
 
 
 int main() {
@@ -16,6 +17,25 @@ int main() {
         std::cout << "This program must be run as sudo!" << std::endl;
         return 1;
     }
+
+    OUIManager ouiManager("../data/oui.csv"); // Relative path from build file
+
+    std::string macs[] = {"08EA44", "84183A", "103034", "AC6784", "103034"};
+
+    for (const auto& mac : macs) {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        std::string vendor = ouiManager.lookupMAC(mac);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::micro> duration = end - start; // microseconds
+
+        std::cout << "MAC: " << mac
+                  << ", Vendor: " << vendor
+                  << ", Lookup time: " << duration.count() << " µs" << std::endl;
+    }
+
+    return 0;
 
     DatabaseManager databaseManager("../data/data.db"); // Relative path from build file
     AdapterManager adapterManager("wlp0s20f0u5u3");
