@@ -38,5 +38,5 @@ public:
 
     std::vector<int> getActiveChannels();
 
-    bool logSupportedChannels(std::vector<int>& channels);
+    bool logSupportedChannels(const std::vector<int>& channels);
 };

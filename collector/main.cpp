@@ -18,9 +18,6 @@ int main() {
     }
 
     DatabaseManager databaseManager("../data/data.db"); // Relative path from build file
-
-    return 0;
-
     AdapterManager adapterManager("wlp0s20f0u5u3");
 
     if(!adapterManager.isMonitorMode()) {
@@ -31,8 +28,34 @@ int main() {
         }
     }
 
-    std::cout << "Changing to channel " << adapterManager.getSupportedChannels()[4] << std::endl;
-    adapterManager.setChannel(adapterManager.getSupportedChannels()[4]);
+    databaseManager.logSupportedChannels(adapterManager.getSupportedChannels());
+
+    // Add demo packets
+    Packet packet1;
+    packet1.dest_mac = "12:34:56:78:9A:BC";
+    packet1.source_mac = "CB:A9:87:65:43:21";
+    packet1.protocol = "TCP";
+    packet1.payload_size = 55;
+    packet1.timestamp = "2022-09-27 18:00:00.000";
+    packet1.latitude = 12.5432;
+    packet1.longitude = 50.3423;
+    packet1.source_oui_vendor = "Apple";
+    packet1.dest_oui_vendor = "";
+    packet1.metadata = "";
+    Packet packet2;
+    packet2.dest_mac = "CB:A9:87:65:43:21";
+    packet2.source_mac = "12:34:56:78:9A:BC";
+    packet2.protocol = "TCP";
+    packet2.payload_size = 55;
+    packet2.timestamp = "2022-09-27 18:00:00.500";
+    packet2.latitude = 12.5432;
+    packet2.longitude = 50.3423;
+    packet2.source_oui_vendor = "";
+    packet2.dest_oui_vendor = "Apple";
+    packet2.metadata = "";
+    std::vector<Packet> packets = {packet1, packet2};
+
+    databaseManager.insertPackets(packets);
 
     return 0;
 
