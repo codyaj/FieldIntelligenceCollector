@@ -1,0 +1,10 @@
+.app-layout-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.content-container {
+    flex-grow: 1;
+    overflow-y: auto;
+}
