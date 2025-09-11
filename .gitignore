@@ -3,3 +3,14 @@
 /collector/data/*
 
 !.gitkeep
+
+/frontend/node_modules/
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.npm
+/frontend/dist/
+/frontend/out-tsc/
+/frontend/.DS_Store
+/frontend/Thumbs.db
+/frontend/src/environments/*.local.ts
