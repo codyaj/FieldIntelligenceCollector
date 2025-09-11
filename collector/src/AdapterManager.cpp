@@ -27,7 +27,11 @@ bool AdapterManager::setMonitorMode() {
 
 bool AdapterManager::setChannel(int channel) {
     std::string cmd = "iw dev " + iface + " set channel " + std::to_string(channel);
-    return system(cmd.c_str()) == 0;
+    if (system(cmd.c_str()) == 0) {
+        currentChannel = channel;
+        return true;
+    }
+    return false;
 }
 
 bool AdapterManager::detectSupportedChannels() {

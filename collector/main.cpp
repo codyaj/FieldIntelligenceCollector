@@ -7,10 +7,22 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <iomanip>   // for std::put_time
 #include "include/AdapterManager.hpp"
 #include "include/Database.hpp"
 #include "include/OUIManager.hpp"
+#include "include/PacketScanner.hpp"
 
+// Helper to get ISO 8601 timestamp
+std::string getCurrentTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm = *std::gmtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%FT%TZ"); // e.g. 2025-09-10T12:34:56Z
+    return oss.str();
+}
 
 int main() {
     if (geteuid() != 0) {
@@ -18,69 +30,25 @@ int main() {
         return 1;
     }
 
-    OUIManager ouiManager("../data/oui.csv"); // Relative path from build file
+    std::string iface = "wlp0s20f0u5u3";
 
-    std::string macs[] = {"08EA44", "84183A", "103034", "AC6784", "103034"};
+    OUIManager ouiManager("../data/oui.csv"); 
+    DatabaseManager databaseManager("../data/data.db"); 
+    AdapterManager adapterManager(iface);
+    PacketScanner packetScanner(200, 2000);
 
-    for (const auto& mac : macs) {
-        auto start = std::chrono::high_resolution_clock::now();
-
-        std::string vendor = ouiManager.lookupMAC(mac);
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::micro> duration = end - start; // microseconds
-
-        std::cout << "MAC: " << mac
-                  << ", Vendor: " << vendor
-                  << ", Lookup time: " << duration.count() << " µs" << std::endl;
-    }
-
-    return 0;
-
-    DatabaseManager databaseManager("../data/data.db"); // Relative path from build file
-    AdapterManager adapterManager("wlp0s20f0u5u3");
-
-    if(!adapterManager.isMonitorMode()) {
+    if (!adapterManager.isMonitorMode()) {
         std::cout << "Enabling monitor mode" << std::endl;
-        if(!adapterManager.setMonitorMode()) {
+        if (!adapterManager.setMonitorMode()) {
             std::cout << "Failed to set to monitor mode" << std::endl;
             return 1;
         }
     }
 
+    // log supported channels
     databaseManager.logSupportedChannels(adapterManager.getSupportedChannels());
 
-    // Add demo packets
-    Packet packet1;
-    packet1.dest_mac = "12:34:56:78:9A:BC";
-    packet1.source_mac = "CB:A9:87:65:43:21";
-    packet1.protocol = "TCP";
-    packet1.payload_size = 55;
-    packet1.timestamp = "2022-09-27 18:00:00.000";
-    packet1.latitude = 12.5432;
-    packet1.longitude = 50.3423;
-    packet1.source_oui_vendor = "Apple";
-    packet1.dest_oui_vendor = "";
-    packet1.metadata = "";
-    Packet packet2;
-    packet2.dest_mac = "CB:A9:87:65:43:21";
-    packet2.source_mac = "12:34:56:78:9A:BC";
-    packet2.protocol = "TCP";
-    packet2.payload_size = 55;
-    packet2.timestamp = "2022-09-27 18:00:00.500";
-    packet2.latitude = 12.5432;
-    packet2.longitude = 50.3423;
-    packet2.source_oui_vendor = "";
-    packet2.dest_oui_vendor = "Apple";
-    packet2.metadata = "";
-    std::vector<Packet> packets = {packet1, packet2};
-
-    databaseManager.insertPackets(packets);
-
-    return 0;
-
-
-    /*
+    // Open live capture
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *handle = pcap_open_live(iface.c_str(), 65535, 1, 1000, errbuf);
     if (!handle) {
@@ -88,26 +56,52 @@ int main() {
         return 1;
     }
 
-    std::vector<int> channels = {1,2,3,4,5,6,7,8,9,10,11};
-    int dwell_ms = 200;
+    adapterManager.setChannel(36);
+
+    // Allocate capture context ONCE (not every dispatch)
+    struct CaptureContext {
+        PacketScanner* scanner;
+        AdapterManager* adapter;
+        OUIManager* ouiManager;
+    };
+
+    CaptureContext ctx{ &packetScanner, &adapterManager, &ouiManager };
 
     while (true) {
-        for (int ch : channels) {
+        pcap_dispatch(handle, 10,
+            [](u_char *user, const struct pcap_pkthdr *header, const u_char *packet) {
+                auto* ctx = reinterpret_cast<CaptureContext*>(user);
+                PacketScanner* scanner = ctx->scanner;
+                AdapterManager* adapter = ctx->adapter;
+                OUIManager* oui = ctx->ouiManager;
 
-            // Capture packets for dwell_ms
-            auto start = std::chrono::steady_clock::now();
-            while (true) {
-                pcap_dispatch(handle, 0, [](u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
-                    std::cout << "Packet length: " << header->len << std::endl;
-                }, nullptr);
+                int currChannel = adapter->getCurrentChannel();
+                std::string timestamp = getCurrentTimestamp();
 
-                auto now = std::chrono::steady_clock::now();
-                if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() >= dwell_ms)
-                    break;
-            }
+                Packet pkt = scanner->processPacket(
+                    packet,
+                    header->len,
+                    timestamp,
+                    currChannel
+                );
+
+                if (pkt.protocol == "Invalid") {
+                    return; // skip bad packets
+                }
+
+                pkt.source_oui_vendor = oui->lookupMAC(pkt.source_mac);
+                pkt.dest_oui_vendor   = oui->lookupMAC(pkt.dest_mac);
+
+                scanner->addToBatch(pkt);
+            },
+            reinterpret_cast<u_char*>(&ctx)  // pass pointer to ctx
+        );
+        if (packetScanner.isBatchReady()) {
+            databaseManager.insertPackets(packetScanner.getBatch());
+            std::cout << "Write complete" << std::endl;
         }
     }
 
     pcap_close(handle);
-    return 0;*/
+    return 0;
 }

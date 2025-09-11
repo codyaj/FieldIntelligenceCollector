@@ -13,7 +13,6 @@ set(SOURCES
     src/PacketScanner.cpp
     src/Database.cpp
     src/OUIManager.cpp
-    src/Utils.cpp
     main.cpp
 )
 

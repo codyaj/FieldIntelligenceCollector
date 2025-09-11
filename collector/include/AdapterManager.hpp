@@ -10,6 +10,7 @@ private:
     std::string iface;
     std::vector<int> supportedChannels;
     std::vector<int> activeChannels;
+    int currentChannel;
 
     bool detectSupportedChannels();
 public:
@@ -27,6 +28,7 @@ public:
 
     // Channel control
     bool setChannel(int channel);
+    int getCurrentChannel() { return currentChannel; };
     std::vector<int> getSupportedChannels() const { return supportedChannels; }
     std::vector<int> getActiveChannels() const { return activeChannels; }
 

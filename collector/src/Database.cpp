@@ -25,11 +25,13 @@ bool DatabaseManager::initTables() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         source_mac TEXT NOT NULL,
         dest_mac TEXT NOT NULL,
+        bssid TEXT NO NULL,
         protocol TEXT,
         payload_size INTEGER,
         timestamp TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
+        channel INT NOT NULL,
         source_oui_vendor TEXT,
         dest_oui_vendor TEXT,
         metadata TEXT
@@ -75,8 +77,8 @@ bool DatabaseManager::insertPackets(const std::vector<Packet>& packets) {
 
     // Insert new packets
     const char* packetsSQL = R"SQL(
-        INSERT INTO packets_table (source_mac, dest_mac, protocol, payload_size, timestamp, latitude, longitude, source_oui_vendor, dest_oui_vendor, metadata)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO packets_table (source_mac, dest_mac, bssid, protocol, payload_size, timestamp, latitude, longitude, channel, source_oui_vendor, dest_oui_vendor, metadata)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     )SQL";
 
     sqlite3_stmt* stmt = nullptr;
@@ -100,33 +102,35 @@ bool DatabaseManager::insertPackets(const std::vector<Packet>& packets) {
 
         sqlite3_bind_text(stmt, 1, packet.source_mac.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, packet.dest_mac.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, packet.bssid.c_str(), -1, SQLITE_TRANSIENT);
         if (packet.protocol.empty()) {
-            sqlite3_bind_null(stmt, 3);
+            sqlite3_bind_null(stmt, 4);
         } else { 
-            sqlite3_bind_text(stmt, 3, packet.protocol.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 4, packet.protocol.c_str(), -1, SQLITE_TRANSIENT);
         }
         if (packet.payload_size < 0) {
-            sqlite3_bind_null(stmt, 4);
+            sqlite3_bind_null(stmt, 5);
         } else {
-            sqlite3_bind_int(stmt, 4, packet.payload_size);
+            sqlite3_bind_int(stmt, 5, packet.payload_size);
         }
-        sqlite3_bind_text(stmt, 5, packet.timestamp.c_str(), -1, SQLITE_TRANSIENT);
-        sqlite3_bind_double(stmt, 6, packet.latitude);
-        sqlite3_bind_double(stmt, 7, packet.longitude);
+        sqlite3_bind_text(stmt, 6, packet.timestamp.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 7, packet.latitude);
+        sqlite3_bind_double(stmt, 8, packet.longitude);
+        sqlite3_bind_int(stmt, 9, packet.channel);
         if (packet.source_oui_vendor.empty()) {
-            sqlite3_bind_null(stmt, 8);
-        } else {
-            sqlite3_bind_text(stmt, 8, packet.source_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
-        }
-        if (packet.dest_oui_vendor.empty()) {
-            sqlite3_bind_null(stmt, 9);
-        } else {
-            sqlite3_bind_text(stmt, 9, packet.dest_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
-        }
-        if (packet.metadata.empty()) {
             sqlite3_bind_null(stmt, 10);
         } else {
-            sqlite3_bind_text(stmt, 10, packet.metadata.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 10, packet.source_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
+        }
+        if (packet.dest_oui_vendor.empty()) {
+            sqlite3_bind_null(stmt, 11);
+        } else {
+            sqlite3_bind_text(stmt, 11, packet.dest_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
+        }
+        if (packet.metadata.empty()) {
+            sqlite3_bind_null(stmt, 12);
+        } else {
+            sqlite3_bind_text(stmt, 12, packet.metadata.c_str(), -1, SQLITE_TRANSIENT);
         }
 
         rc = sqlite3_step(stmt);

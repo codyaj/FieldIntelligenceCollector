@@ -37,8 +37,6 @@ void OUIManager::loadOUIMap(const std::string& path) {
     }
 
     file.close();
-
-    std::cout << ouiMapAll.size() << std::endl;
 }
 
 std::string OUIManager::lookupMAC(const std::string& macStr) {

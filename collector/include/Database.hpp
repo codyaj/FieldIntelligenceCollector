@@ -8,11 +8,13 @@
 struct Packet {
     std::string source_mac;
     std::string dest_mac;
+    std::string bssid;
     std::string protocol;
     int payload_size;
     std::string timestamp; // ISO 8601 string
     double latitude;
     double longitude;
+    int channel;
     std::string source_oui_vendor;
     std::string dest_oui_vendor;
     std::string metadata; // JSON
