@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="packetContainer">
+        <div>
+            <apx-chart 
+                #chart
+                [series]="chartOptions.series"
+                [chart]="chartOptions.chart"
+                [xaxis]="chartOptions.xaxis"
+                [stroke]="chartOptions.stroke"
+                [tooltip]="chartOptions.tooltip"
+                [legend]="chartOptions.legend">
+            </apx-chart>
+        </div>
+    </div>
+    <div class="bottomContainer">
+        <div class="deviceContainer">
+            <apx-chart 
+                [series]="deviceChartOptions.series"
+                [chart]="deviceChartOptions.chart"
+                [labels]="deviceChartOptions.labels"
+                [tooltip]="deviceChartOptions.tooltip"
+                [legend]="deviceChartOptions.legend">
+            </apx-chart>
+        </div>
+        <div class="logContainer">
+            <p class="heading">Logs</p>
+            <p *ngFor="let log of logs">{{ log }}</p>
+        </div>
+    </div>
+</div>
