@@ -10,23 +10,20 @@ $accent: #17A2B8;
     flex-direction: column;
     height: 100%;
     width: 100%;
-    padding: 30px;
     box-sizing: border-box;
 }
 
 .map {
     flex: 7; 
     background-color: $accent; 
-    border-radius: 30px 30px 0 0;
 }
 
 .filters {
     flex: 3;
     min-height: 30vh;
     max-height: 30vh;
-    background-color: $light-grey;
+    background-color: $sub-dark;
     padding: 1rem;
-    border-radius: 0 0 30px 30px;
     color: $white;
 
     display: flex;       
@@ -77,16 +74,15 @@ select {
     padding: 0.3rem;
     border-radius: 5px;
     border: none;
-    background-color: $sub-dark;
+    background-color: $main-dark;
     color: $white;
 }
 
 .ssidInput {
     width: 100%;
     margin-bottom: 5px;
-    background-color: $light-grey;
+    background-color: $sub-dark;
     font-size: 16px;
-    border-bottom: 1px solid $sub-dark;
     color: $white;
 }
 
