@@ -1,0 +1,118 @@
+$main-dark: #212529;
+$sub-dark: #2b3035;
+$light-grey: #40464d;
+$white: #f8f9fa;
+$accent: #17a2b8;
+
+.settings-container {
+    display: flex;
+    height: 100%;
+    background: $sub-dark;
+    color: $white;
+}
+
+.settings-sidebar {
+    width: 220px;
+    background: $sub-dark;
+    border-right: $main-dark solid 2px;
+    padding: 1rem;
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        li {
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            &:hover {
+                background: $light-grey;
+            }
+            &.active {
+                background: $light-grey;
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+.settings-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+
+    h2 {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        input[type="number"] {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: none;
+            width: 150px;
+        }
+    }
+
+    .channels {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0.5rem;
+    }
+
+    .btn-save,
+    .btn-export,
+    .btn-purge {
+        margin-top: 1rem;
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        color: $white;
+        font-weight: bold;
+        transition: background 0.2s;
+    }
+
+    .btn-save {
+        background: $accent;
+        &:hover {
+            background: $light-grey;
+        }
+    }
+
+    .btn-export {
+        background: $accent;
+        margin-right: 1rem;
+        &:hover {
+            background: $light-grey;
+        }
+    }
+
+    .btn-purge {
+        background: #f44336;
+        &:hover {
+            background: #d32f2f;
+        }
+    }
+
+    .storage-metrics {
+        margin-bottom: 1.5rem;
+        .progress-bar {
+            width: 100%;
+            height: 18px;
+            background: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            .progress {
+                height: 100%;
+                background: #00c853;
+            }
+        }
+    }
+}

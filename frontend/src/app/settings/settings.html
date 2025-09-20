@@ -1,1 +1,46 @@
-<p>settings works!</p>
+<div class="settings-container">
+    <!-- Sidebar -->
+    <aside class="settings-sidebar">
+        <ul>
+            <li [class.active]="activePage === 'wifi'" (click)="setActivePage('wifi')"> Wi-Fi Scanning </li>
+            <li [class.active]="activePage === 'storage'" (click)="setActivePage('storage')"> Database & Storage </li>
+        </ul>
+    </aside>
+    <!-- Main content -->
+    <main class="settings-content">
+        <ng-container [ngSwitch]="activePage">
+            <!-- Wi-Fi Scanning Config -->
+            <section *ngSwitchCase="'wifi'">
+                <h2>Wi-Fi Scanning Configuration</h2>
+                <div class="form-group">
+                    <label>Select Channels</label>
+                    <div class="channels">
+                        <label *ngFor="let ch of wifiChannels">
+                            <input type="checkbox" [(ngModel)]="ch.selected" />
+                            {{ ch.label }}
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="hopSpeed">Channel Hopping Speed (ms)</label>
+                    <input type="number" id="hopSpeed" [(ngModel)]="hopSpeed" min="50" step="50" />
+                </div>
+                <button class="btn-save" (click)="saveWifiConfig()"> Save Config </button>
+            </section>
+            <!-- Database & Storage Config -->
+            <section *ngSwitchCase="'storage'">
+                <h2>Database & Storage</h2>
+                <div class="storage-metrics">
+                    <p>Storage Used: {{ usedStorage }} / {{ totalStorage }} MB</p>
+                    <div class="progress-bar">
+                        <div class="progress" [style.width.%]="(usedStorage / totalStorage) * 100"></div>
+                    </div>
+                </div>
+                <div class="storage-actions">
+                    <button class="btn-export" (click)="exportData()">Export Data</button>
+                    <button class="btn-purge" (click)="purgeData()"> ⚠ Purge All Data </button>
+                </div>
+            </section>
+        </ng-container>
+    </main>
+</div>
