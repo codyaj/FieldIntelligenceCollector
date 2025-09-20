@@ -1,1 +1,49 @@
-<p>analytics works!</p>
+<div class="container">
+    <div class="ssidContainer">
+        <label for="ssid">Select SSID:</label>
+        <select id="ssid" [(ngModel)]="selectedSSID" (change)="onSSIDChange()">
+            <option *ngFor="let ssid of ssids" [value]="ssid">{{ ssid }}</option>
+        </select>
+    </div>
+
+    <div class="topContainer">
+        <div class="chartBox">
+            <p class="heading">OUI Vendor Breakdown</p>
+            <apx-chart 
+                [series]="ouiChartOptions.series" 
+                [chart]="ouiChartOptions.chart" 
+                [xaxis]="ouiChartOptions.xaxis" 
+                [plotOptions]="ouiChartOptions.plotOptions" 
+                [tooltip]="ouiChartOptions.tooltip" 
+                [legend]="ouiChartOptions.legend"
+            >
+            </apx-chart>
+        </div>
+
+        <div class="chartBox">
+            <p class="heading">Protocol Distribution</p>
+            <apx-chart 
+                [series]="protocolChartOptions.series" 
+                [chart]="protocolChartOptions.chart" 
+                [xaxis]="protocolChartOptions.xaxis" 
+                [plotOptions]="protocolChartOptions.plotOptions" 
+                [tooltip]="protocolChartOptions.tooltip" 
+                [legend]="protocolChartOptions.legend"
+            >
+            </apx-chart>
+        </div>
+    </div>
+
+    <div class="timelineContainer">
+        <p class="heading">Timeline</p>
+        <apx-chart 
+            [series]="timelineChartOptions.series" 
+            [chart]="timelineChartOptions.chart" 
+            [xaxis]="timelineChartOptions.xaxis" 
+            [stroke]="timelineChartOptions.stroke" 
+            [tooltip]="timelineChartOptions.tooltip" 
+            [legend]="timelineChartOptions.legend"
+        >
+        </apx-chart>
+    </div>
+</div>
