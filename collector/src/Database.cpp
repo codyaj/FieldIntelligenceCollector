@@ -25,12 +25,13 @@ bool DatabaseManager::init_tables() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         source_mac TEXT NOT NULL,
         dest_mac TEXT NOT NULL,
-        bssid TEXT NO NULL,
+        bssid TEXT NOT NULL,
         protocol TEXT,
         payload_size INTEGER,
         timestamp TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
+        gnss_fix_time_utc REAL NOT NULL,
         channel INT NOT NULL,
         source_oui_vendor TEXT,
         dest_oui_vendor TEXT,
@@ -77,8 +78,8 @@ bool DatabaseManager::insert_packets(const std::vector<Packet>& packets) {
 
     // Insert new packets
     const char* packetsSQL = R"SQL(
-        INSERT INTO packets_table (source_mac, dest_mac, bssid, protocol, payload_size, timestamp, latitude, longitude, channel, source_oui_vendor, dest_oui_vendor, metadata)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT INTO packets_table (source_mac, dest_mac, bssid, protocol, payload_size, timestamp, latitude, longitude, gnss_fix_time_utc, channel, source_oui_vendor, dest_oui_vendor, metadata)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     )SQL";
 
     sqlite3_stmt* stmt = nullptr;
@@ -116,21 +117,22 @@ bool DatabaseManager::insert_packets(const std::vector<Packet>& packets) {
         sqlite3_bind_text(stmt, 6, packet.timestamp.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_double(stmt, 7, packet.latitude);
         sqlite3_bind_double(stmt, 8, packet.longitude);
-        sqlite3_bind_int(stmt, 9, packet.channel);
+        sqlite3_bind_double(stmt, 9, packet.gnss_fix_time_utc);
+        sqlite3_bind_int(stmt, 10, packet.channel);
         if (packet.source_oui_vendor.empty()) {
-            sqlite3_bind_null(stmt, 10);
-        } else {
-            sqlite3_bind_text(stmt, 10, packet.source_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
-        }
-        if (packet.dest_oui_vendor.empty()) {
             sqlite3_bind_null(stmt, 11);
         } else {
-            sqlite3_bind_text(stmt, 11, packet.dest_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 11, packet.source_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
         }
-        if (packet.metadata.empty()) {
+        if (packet.dest_oui_vendor.empty()) {
             sqlite3_bind_null(stmt, 12);
         } else {
-            sqlite3_bind_text(stmt, 12, packet.metadata.c_str(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 12, packet.dest_oui_vendor.c_str(), -1, SQLITE_TRANSIENT);
+        }
+        if (packet.metadata.empty()) {
+            sqlite3_bind_null(stmt, 13);
+        } else {
+            sqlite3_bind_text(stmt, 13, packet.metadata.c_str(), -1, SQLITE_TRANSIENT);
         }
 
         rc = sqlite3_step(stmt);

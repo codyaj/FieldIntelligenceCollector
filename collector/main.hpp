@@ -10,6 +10,8 @@
 #include <thread>
 #include <chrono>
 #include <iomanip>   // for std::put_time
+#include <memory>
+
 #include "include/AdapterManager.hpp"
 #include "include/Database.hpp"
 #include "include/OUIManager.hpp"

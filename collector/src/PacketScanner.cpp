@@ -112,8 +112,14 @@ Packet PacketScanner::process_packet(const uint8_t* packetData, size_t length, c
     pkt.source_mac = mac_to_string(addr2);
     pkt.bssid = mac_to_string(addr3);
 
-    pkt.latitude = 0; // dummy
-    pkt.longitude = 0; // dummy
+    GNSSData gnssData = gpsManager->get_current_data();
+    if (gnssData.hasFix == true) {
+        latestGNSSData = gnssData;
+    }
+
+    pkt.latitude = latestGNSSData.latitude;
+    pkt.longitude = latestGNSSData.longitude;
+    pkt.gnss_fix_time_utc = latestGNSSData.utc; // Logs when the GNSS data was captured so during analysis we can more accurately determine accuracy (for moving targets)
 
     pkt.channel = currChannel;
 

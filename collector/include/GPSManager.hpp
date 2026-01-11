@@ -11,6 +11,7 @@
 struct GNSSData {
     double latitude = 0.0;
     double longitude = 0.0;
+    double utc = 0.0;
     bool hasFix = false;
 };
 

@@ -11,26 +11,32 @@ std::string get_current_timestamp() {
     return oss.str();
 }
 
-int main() {
-
-    GPSManager gpsManager("/dev/ttyACM0");
-
-    while (1) {
-        gpsManager.read_data();
+void gnss_fetch_loop(std::shared_ptr<GPSManager> gpsManager) {
+    while (true) {
+        gpsManager->read_data();
         sleep(1);
     }
+}
+
+int main() {
 
     if (geteuid() != 0) {
         std::cout << "This program must be run as sudo!" << std::endl;
         return 1;
     }
 
-    std::string iface = "wlan1";
+    // Create shared pointer to gpsManager (for use in external thread & packetScanner)
+    std::shared_ptr<GPSManager> gpsManager = std::make_shared<GPSManager>("/dev/ttyACM0"); // TODO: Change to singular configuration area
 
-    OUIManager ouiManager("../data/oui.csv"); 
-    DatabaseManager databaseManager("../data/data.db"); 
-    AdapterManager adapterManager(iface);
-    PacketScanner packetScanner(200, 2000);
+    // Create GNSS thread
+    std::thread gnss_thread(gnss_fetch_loop, gpsManager);
+
+    // Create other used classes
+    OUIManager ouiManager("../data/oui.csv");  // TODO: Change to singular configuration area
+    DatabaseManager databaseManager("../data/data.db");  // TODO: Change to singular configuration area
+    std::string iface = "wlan1"; // TODO: Change to singular configuration area
+    AdapterManager adapterManager(iface); // TODO: Change to singular configuration area
+    PacketScanner packetScanner(gpsManager, 200, 2000); // TODO: Change to singular configuration area
 
     if (!adapterManager.is_monitor_mode()) {
         std::cout << "Enabling monitor mode" << std::endl;

@@ -14,6 +14,7 @@ struct Packet {
     std::string timestamp; // ISO 8601 string
     double latitude;
     double longitude;
+    double gnss_fix_time_utc;
     int channel;
     std::string source_oui_vendor;
     std::string dest_oui_vendor;

@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <sstream>
 #include <unordered_map>
+#include <memory>
+
 #include "Database.hpp" // For packet
 #include "OUIManager.hpp"
 #include "GPSManager.hpp"
@@ -25,10 +27,14 @@ private:
     std::chrono::milliseconds batchTimeThreshold;
     std::chrono::steady_clock::time_point lastBatchTime;
 
+    std::shared_ptr<GPSManager> gpsManager;
+    GNSSData latestGNSSData;
+
 public:
-    explicit PacketScanner(size_t batchSize = 200, int batchTimeMs = 2000) : batchSizeThreshold(batchSize), 
-                                                                             batchTimeThreshold(std::chrono::milliseconds(batchTimeMs)),
-                                                                             lastBatchTime(std::chrono::steady_clock::now()) {}
+    explicit PacketScanner(std::shared_ptr<GPSManager> gpsManager, size_t batchSize = 200, int batchTimeMs = 2000) : batchSizeThreshold(batchSize), 
+                                                                                                                    batchTimeThreshold(std::chrono::milliseconds(batchTimeMs)),
+                                                                                                                    lastBatchTime(std::chrono::steady_clock::now()),
+                                                                                                                    gpsManager(gpsManager) {}
 
     Packet process_packet(const uint8_t* packetData, size_t length, const std::string& timestamp, int currChannel);
 

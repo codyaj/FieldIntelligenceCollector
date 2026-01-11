@@ -56,8 +56,9 @@ void GPSManager::parse_line(const std::string& line) {
             currentData.hasFix = true;
             currentData.latitude = convert_to_decimal(tokens[3], tokens[4]);
             currentData.longitude = convert_to_decimal(tokens[5], tokens[6]);
+            currentData.utc = std::stod(tokens[1]);
             
-            std::cout << "Fix: " << currentData.latitude << ", " << currentData.longitude << std::endl;
+            std::cout << "Fix @ " << currentData.utc << ": " << currentData.latitude << ", " << currentData.longitude << std::endl;
         } else {
             currentData.hasFix = false;
             std::cout << "Waiting for u-blox 7 fix..." << std::endl;
