@@ -14,7 +14,7 @@ void DatabaseManager::close() {
     db = nullptr;
 }
 
-bool DatabaseManager::initTables() {
+bool DatabaseManager::init_tables() {
     if (!db) {
         std::cerr << "Database not open. Call open() first." << std::endl;
         return false;
@@ -69,7 +69,7 @@ bool DatabaseManager::initTables() {
     return true;
 }
 
-bool DatabaseManager::insertPackets(const std::vector<Packet>& packets) {
+bool DatabaseManager::insert_packets(const std::vector<Packet>& packets) {
     if (!db) {
         std::cerr << "Database not open. Call open() first." << std::endl;
         return false;
@@ -154,7 +154,7 @@ bool DatabaseManager::insertPackets(const std::vector<Packet>& packets) {
     return true;
 }
 
-std::vector<int> DatabaseManager::getActiveChannels() {
+std::vector<int> DatabaseManager::get_active_channels() {
     std::vector<int> channels;
     if (!db) {
         std::cerr << "Database not open. Call open() first." << std::endl;
@@ -178,7 +178,7 @@ std::vector<int> DatabaseManager::getActiveChannels() {
     return channels;
 }
 
-bool DatabaseManager::logSupportedChannels(const std::vector<int>& channels) {
+bool DatabaseManager::log_supported_channels(const std::vector<int>& channels) {
     if (!db) {
         std::cerr << "Database not open. Call open() first." << std::endl;
         return false;

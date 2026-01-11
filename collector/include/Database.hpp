@@ -27,18 +27,18 @@ private:
 
     bool open();
     void close();
-    bool initTables();
+    bool init_tables();
 public:
     explicit DatabaseManager(const std::string& path) : dbPath(path) { 
         if (open()) {
-            initTables();
+            init_tables();
         }
     }
     ~DatabaseManager() { close(); }
 
-    bool insertPackets(const std::vector<Packet>& packets);
+    bool insert_packets(const std::vector<Packet>& packets);
 
-    std::vector<int> getActiveChannels();
+    std::vector<int> get_active_channels();
 
-    bool logSupportedChannels(const std::vector<int>& channels);
+    bool log_supported_channels(const std::vector<int>& channels);
 };

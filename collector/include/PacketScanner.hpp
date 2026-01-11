@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include "Database.hpp" // For packet
 #include "OUIManager.hpp"
+#include "GPSManager.hpp"
 
 struct radiotap_header {
     uint8_t  it_version;     // always 0
@@ -29,11 +30,11 @@ public:
                                                                              batchTimeThreshold(std::chrono::milliseconds(batchTimeMs)),
                                                                              lastBatchTime(std::chrono::steady_clock::now()) {}
 
-    Packet processPacket(const uint8_t* packetData, size_t length, const std::string& timestamp, int currChannel);
+    Packet process_packet(const uint8_t* packetData, size_t length, const std::string& timestamp, int currChannel);
 
-    void addToBatch(Packet packet) { batchBuffer.push_back(packet); }
+    void add_to_batch(Packet packet) { batchBuffer.push_back(packet); }
 
-    bool isBatchReady();
+    bool is_batch_ready();
 
-    std::vector<Packet> getBatch();
+    std::vector<Packet> get_batch();
 };

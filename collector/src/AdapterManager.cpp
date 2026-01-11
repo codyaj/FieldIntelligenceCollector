@@ -1,6 +1,6 @@
 #include "./AdapterManager.hpp"
 
-bool AdapterManager::isMonitorMode() const {
+bool AdapterManager::is_monitor_mode() const {
     std::string cmd = "iw dev " + iface + " info | grep 'type'";
     FILE *pipe = popen(cmd.c_str(), "r");
     if (!pipe) return false;
@@ -15,7 +15,7 @@ bool AdapterManager::isMonitorMode() const {
     return result.find("monitor") != std::string::npos;
 }
 
-bool AdapterManager::setMonitorMode() {
+bool AdapterManager::set_monitor_mode() {
     if (system(("ip link set " + iface + " down").c_str()) != 0)
         return false;
     if (system(("iw " + iface + " set monitor control").c_str()) != 0)
@@ -25,7 +25,7 @@ bool AdapterManager::setMonitorMode() {
     return true;
 }
 
-bool AdapterManager::setChannel(int channel) {
+bool AdapterManager::set_channel(int channel) {
     std::string cmd = "iw dev " + iface + " set channel " + std::to_string(channel);
     if (system(cmd.c_str()) == 0) {
         currentChannel = channel;
@@ -34,7 +34,7 @@ bool AdapterManager::setChannel(int channel) {
     return false;
 }
 
-bool AdapterManager::detectSupportedChannels() {
+bool AdapterManager::detect_supported_channels() {
     AdapterManager::supportedChannels.clear();
 
     // Find PHY name
@@ -84,7 +84,7 @@ bool AdapterManager::detectSupportedChannels() {
     return true;
 }
 
-void AdapterManager::setActiveChannels(const std::vector<int>& channels) {
+void AdapterManager::set_active_channels(const std::vector<int>& channels) {
     for (int channel : channels) {
         if (std::find(AdapterManager::supportedChannels.begin(), AdapterManager::supportedChannels.end(), channel) == AdapterManager::supportedChannels.end()) {
             std::cout << "Failed to update active channels. " << channel << " is not a supported channel." << std::endl;

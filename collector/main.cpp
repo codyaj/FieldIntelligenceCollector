@@ -1,7 +1,7 @@
 #include "main.hpp"
 
 // Helper to get ISO 8601 timestamp
-std::string getCurrentTimestamp() {
+std::string get_current_timestamp() {
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::tm tm = *std::gmtime(&t);
@@ -32,16 +32,16 @@ int main() {
     AdapterManager adapterManager(iface);
     PacketScanner packetScanner(200, 2000);
 
-    if (!adapterManager.isMonitorMode()) {
+    if (!adapterManager.is_monitor_mode()) {
         std::cout << "Enabling monitor mode" << std::endl;
-        if (!adapterManager.setMonitorMode()) {
+        if (!adapterManager.set_monitor_mode()) {
             std::cout << "Failed to set to monitor mode" << std::endl;
             return 1;
         }
     }
 
     // log supported channels
-    databaseManager.logSupportedChannels(adapterManager.getSupportedChannels());
+    databaseManager.log_supported_channels(adapterManager.get_supported_channels());
 
     // Open live capture
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -51,7 +51,7 @@ int main() {
         return 1;
     }
 
-    adapterManager.setChannel(36);
+    adapterManager.set_channel(36);
 
     // Allocate capture context ONCE (not every dispatch)
     struct CaptureContext {
@@ -70,10 +70,10 @@ int main() {
                 AdapterManager* adapter = ctx->adapter;
                 OUIManager* oui = ctx->ouiManager;
 
-                int currChannel = adapter->getCurrentChannel();
-                std::string timestamp = getCurrentTimestamp();
+                int currChannel = adapter->get_current_channel();
+                std::string timestamp = get_current_timestamp();
 
-                Packet pkt = scanner->processPacket(
+                Packet pkt = scanner->process_packet(
                     packet,
                     header->len,
                     timestamp,
@@ -84,15 +84,15 @@ int main() {
                     return; // skip bad packets
                 }
 
-                pkt.source_oui_vendor = oui->lookupMAC(pkt.source_mac);
-                pkt.dest_oui_vendor   = oui->lookupMAC(pkt.dest_mac);
+                pkt.source_oui_vendor = oui->lookup_MAC(pkt.source_mac);
+                pkt.dest_oui_vendor   = oui->lookup_MAC(pkt.dest_mac);
 
-                scanner->addToBatch(pkt);
+                scanner->add_to_batch(pkt);
             },
             reinterpret_cast<u_char*>(&ctx)  // pass pointer to ctx
         );
-        if (packetScanner.isBatchReady()) {
-            databaseManager.insertPackets(packetScanner.getBatch());
+        if (packetScanner.is_batch_ready()) {
+            databaseManager.insert_packets(packetScanner.get_batch());
             std::cout << "Write complete" << std::endl;
         }
     }

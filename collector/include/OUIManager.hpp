@@ -12,11 +12,12 @@ private:
     std::unordered_map<uint32_t, std::string> ouiMapAll;
     std::unordered_map<uint32_t, std::string> ouiMapCache;
 
-    uint32_t parseOUI(const std::string& ouiStr);
+    uint32_t parse_OUI(const std::string& ouiStr);
 
-    void loadOUIMap(const std::string& path);
+    void load_OUI_map(const std::string& path);
+    
 public:
-    explicit OUIManager(const std::string& path) { loadOUIMap(path); }
+    explicit OUIManager(const std::string& path) { load_OUI_map(path); }
 
-    std::string lookupMAC(const std::string& macStr);
+    std::string lookup_MAC(const std::string& macStr);
 };

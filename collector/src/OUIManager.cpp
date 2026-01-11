@@ -1,7 +1,7 @@
 #include "./OUIManager.hpp"
 
 
-uint32_t OUIManager::parseOUI(const std::string& ouiStr) {
+uint32_t OUIManager::parse_OUI(const std::string& ouiStr) {
     uint32_t oui = 0;
     std::istringstream ss(ouiStr);
     std::string byteStr;
@@ -12,7 +12,7 @@ uint32_t OUIManager::parseOUI(const std::string& ouiStr) {
     return oui;
 }
 
-void OUIManager::loadOUIMap(const std::string& path) {
+void OUIManager::load_OUI_map(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open OUI CSV file!" << std::endl;
@@ -32,15 +32,15 @@ void OUIManager::loadOUIMap(const std::string& path) {
         if (!std::getline(ss, orgName, ',')) continue;
         // orgAddr is ignored
 
-        uint32_t oui = parseOUI(assignment);
+        uint32_t oui = parse_OUI(assignment);
         ouiMapAll[oui] = orgName;
     }
 
     file.close();
 }
 
-std::string OUIManager::lookupMAC(const std::string& macStr) {
-    uint32_t oui = parseOUI(macStr.substr(0, 8));
+std::string OUIManager::lookup_MAC(const std::string& macStr) {
+    uint32_t oui = parse_OUI(macStr.substr(0, 8));
 
     // Search cache
     auto itCache = ouiMapCache.find(oui);

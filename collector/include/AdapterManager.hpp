@@ -12,10 +12,11 @@ private:
     std::vector<int> activeChannels;
     int currentChannel;
 
-    bool detectSupportedChannels();
+    bool detect_supported_channels();
+
 public:
     explicit AdapterManager(const std::string &iface) : iface(iface) {
-        if (!detectSupportedChannels()) {
+        if (!detect_supported_channels()) {
             std::cout << "Failed to determine supported channels" << std::endl;
         }
 
@@ -23,15 +24,15 @@ public:
     }
 
     // Monitor mode functions
-    bool isMonitorMode() const;
-    bool setMonitorMode();
+    bool is_monitor_mode() const;
+    bool set_monitor_mode();
 
     // Channel control
-    bool setChannel(int channel);
-    int getCurrentChannel() { return currentChannel; };
-    std::vector<int> getSupportedChannels() const { return supportedChannels; }
-    std::vector<int> getActiveChannels() const { return activeChannels; }
+    bool set_channel(int channel);
+    int get_current_channel() { return currentChannel; };
+    std::vector<int> get_supported_channels() const { return supportedChannels; }
+    std::vector<int> get_active_channels() const { return activeChannels; }
 
     // Active channel management
-    void setActiveChannels(const std::vector<int>& channels);
+    void set_active_channels(const std::vector<int>& channels);
 };

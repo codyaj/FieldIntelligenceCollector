@@ -51,7 +51,7 @@ std::unordered_map<uint8_t, std::unordered_map<uint8_t, std::string>> frameTypes
 };
 
 namespace {
-    std::string macToString(const uint8_t* mac) {
+    std::string mac_to_string(const uint8_t* mac) {
         std::ostringstream oss;
         oss << std::hex << std::uppercase;
         for (int i = 0; i < 6; ++i) {
@@ -61,7 +61,7 @@ namespace {
         return oss.str();
     }
 
-    std::string getFrameTypeName(uint8_t type, uint8_t subtype) {
+    std::string get_frame_type_name(uint8_t type, uint8_t subtype) {
         auto typeIt = frameTypes.find(type);
         if (typeIt != frameTypes.end()) {
             auto& subtypeMap = typeIt->second;
@@ -74,7 +74,7 @@ namespace {
     }
 }
 
-Packet PacketScanner::processPacket(const uint8_t* packetData, size_t length, const std::string& timestamp, int currChannel) {
+Packet PacketScanner::process_packet(const uint8_t* packetData, size_t length, const std::string& timestamp, int currChannel) {
     Packet pkt;
     pkt.timestamp = timestamp;
     pkt.payload_size = static_cast<int>(length);
@@ -101,16 +101,16 @@ Packet PacketScanner::processPacket(const uint8_t* packetData, size_t length, co
     uint8_t subtype = (frameControl >> 4) & 0xF;   // 4 bits: subtype
 
     // For now, we label protocol by type
-    pkt.protocol = getFrameTypeName(type, subtype);
+    pkt.protocol = get_frame_type_name(type, subtype);
 
     // Addresses in 802.11 header
     const uint8_t* addr1 = dot11 + 4;  // Destination
     const uint8_t* addr2 = dot11 + 10; // Source
     const uint8_t* addr3 = dot11 + 16; // BSSID
 
-    pkt.dest_mac = macToString(addr1);
-    pkt.source_mac = macToString(addr2);
-    pkt.bssid = macToString(addr3);
+    pkt.dest_mac = mac_to_string(addr1);
+    pkt.source_mac = mac_to_string(addr2);
+    pkt.bssid = mac_to_string(addr3);
 
     pkt.latitude = 0; // dummy
     pkt.longitude = 0; // dummy
@@ -120,7 +120,7 @@ Packet PacketScanner::processPacket(const uint8_t* packetData, size_t length, co
     return pkt;
 }
 
-bool PacketScanner::isBatchReady() {
+bool PacketScanner::is_batch_ready() {
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastBatchTime);
 
@@ -129,7 +129,7 @@ bool PacketScanner::isBatchReady() {
             elapsed >= batchTimeThreshold);
 }
 
-std::vector<Packet> PacketScanner::getBatch() {
+std::vector<Packet> PacketScanner::get_batch() {
     lastBatchTime = std::chrono::steady_clock::now();
     std::vector<Packet> tempBuffer = batchBuffer;
     batchBuffer.clear();
