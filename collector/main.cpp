@@ -1,17 +1,4 @@
-#include <cstdlib>
-#include <pcap.h>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <unistd.h>
-#include <vector>
-#include <thread>
-#include <chrono>
-#include <iomanip>   // for std::put_time
-#include "include/AdapterManager.hpp"
-#include "include/Database.hpp"
-#include "include/OUIManager.hpp"
-#include "include/PacketScanner.hpp"
+#include "main.hpp"
 
 // Helper to get ISO 8601 timestamp
 std::string getCurrentTimestamp() {
@@ -25,12 +12,20 @@ std::string getCurrentTimestamp() {
 }
 
 int main() {
+
+    GPSManager gpsManager("/dev/ttyACM0");
+
+    while (1) {
+        gpsManager.read_data();
+        sleep(1);
+    }
+
     if (geteuid() != 0) {
         std::cout << "This program must be run as sudo!" << std::endl;
         return 1;
     }
 
-    std::string iface = "wlp0s20f0u5u3";
+    std::string iface = "wlan1";
 
     OUIManager ouiManager("../data/oui.csv"); 
     DatabaseManager databaseManager("../data/data.db"); 
